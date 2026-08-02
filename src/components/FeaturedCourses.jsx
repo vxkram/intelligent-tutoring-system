@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import {
 	BookmarkAddOutlined,
 	FitScreen,
@@ -38,7 +37,7 @@ export default function FeaturedCourses({ note }) {
 						<CardMedia
 							component="img"
 							height="175"
-							image={require('D:/PROJECT/Newfolder/its/src/assets/database.jpg')}
+							image={require('../assets/database.jpg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="left" gap={2}>
@@ -81,7 +80,7 @@ export default function FeaturedCourses({ note }) {
 						<CardMedia
 							component="img"
 							height="175"
-							image={require('D:/PROJECT/Newfolder/its/src/assets/ML.jpg')}
+							image={require('../assets/ML.jpg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="left" gap={2}>
@@ -119,7 +118,7 @@ export default function FeaturedCourses({ note }) {
 						<CardMedia
 							component="img"
 							height="175"
-							image={require('D:/PROJECT/Newfolder/its/src/assets/AI.jpg')}
+							image={require('../assets/AI.jpg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="left" gap={2}>
@@ -157,7 +156,7 @@ export default function FeaturedCourses({ note }) {
 						<CardMedia
 							component="img"
 							height="175"
-							image={require('D:/PROJECT/Newfolder/its/src/assets/Mech.jpeg')}
+							image={require('../assets/Mech.jpeg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="left" gap={2}>

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { BookmarkAddOutlined } from '@mui/icons-material';
 import { IconButton, Stack, Typography } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
@@ -62,8 +61,7 @@ export default function ContinueLearning({ note }) {
 						<CardMedia
 							component="img"
 							height="50"
-							// eslint-disable-next-line no-undef
-							image={require('D:/PROJECT/Newfolder/its/src/assets/database.jpg')}
+							image={require('../assets/database.jpg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="right" gap={2}>
@@ -92,7 +90,7 @@ export default function ContinueLearning({ note }) {
 							sx={{ alignItems: 'left' }}
 							component="img"
 							height="50"
-							image={require('D:/PROJECT/Newfolder/its/src/assets/AI.jpg')}
+							image={require('../assets/AI.jpg')}
 							alt="database"
 						/>
 						<Stack direction="column" alignItems="right" gap={2}>

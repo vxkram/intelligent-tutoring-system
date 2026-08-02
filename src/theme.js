@@ -1,5 +1,4 @@
 import { createTheme } from "@mui/material/styles";
-import { dark, light } from "@mui/material/styles/createPalette";
 import { createContext, useMemo, useState } from "react";
 
 //color design tokens
