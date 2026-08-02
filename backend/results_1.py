@@ -1,77 +1,19 @@
-# from fastapi import FastAPI, HTTPException
-# from fastapi.responses import FileResponse
-# import json
-# from datetime import datetime
-# import matplotlib.pyplot as plt
-# from typing import Optional
-
-# app = FastAPI()
-
-# def save_plot_scores():
-#     file_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_scores.json"
-#     output_path = "D:/PROJECT/Newfolder/its/quiz_scores_plot.png"
-#     try:
-#         with open(file_path, "r") as file:
-#             scores = json.load(file)
-#     except FileNotFoundError:
-#         raise HTTPException(status_code=404, detail="Score file not found. Please take some quizzes first.")
-
-#     if not scores:
-#         raise HTTPException(status_code=404, detail="No scores to plot.")
-
-#     # Extracting scores and timestamps
-#     score_values = [score["score"] for score in scores]
-#     timestamps = [datetime.fromisoformat(score["timestamp"]).strftime('%Y-%m-%d %H:%M:%S') for score in scores]
-
-#     # Plotting
-#     plt.figure(figsize=(10, 6))
-#     plt.plot(timestamps, score_values, marker='o', linestyle='-', color='b')
-#     plt.title('Quiz Scores Over Time')
-#     plt.xlabel('Attempt Timestamp')
-#     plt.ylabel('Score (%)')
-#     plt.xticks(rotation=45)
-#     plt.tight_layout()
-    
-#     # Saving the plot to file
-#     plt.savefig(output_path)
-#     plt.close()
-
-# @app.get("/plot-scores/")
-# def get_plot_scores():
-#     plot_image_path = "D:/PROJECT/Newfolder/its/quiz_scores_plot.png"
-#     save_plot_scores()  # This ensures the plot is generated/updated before being served.
-#     return FileResponse(plot_image_path)
-
-# @app.get("/latest-quiz-result/")
-# def get_latest_quiz_result():
-#     file_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_results.json"
-#     try:
-#         with open(file_path, "r") as file:
-#             scores = json.load(file)
-#     except FileNotFoundError:
-#         raise HTTPException(status_code=404, detail="No quiz results found.")
-
-#     if not scores:
-#         return {"message": "No quiz results available yet."}
-
-#     latest_score = scores[-1]  # Get the most recent score
-#     return {"message": f"You scored {latest_score['score']}% on your last quiz."}
-
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
 import json
-from datetime import datetime
-import matplotlib.pyplot as plt
-from typing import Optional
 import os
+from datetime import datetime
 
-app = FastAPI()
+import matplotlib.pyplot as plt
+from fastapi.responses import FileResponse
+from fastapi import HTTPException
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+QUIZ_RESULTS_PATH = os.path.join(BASE_DIR, "database", "quiz_results.json")
+PLOT_IMAGE_PATH = os.path.join(BASE_DIR, "database", "quiz_scores_plot.png")
+
 
 def save_plot_scores():
-    file_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_results.json"
-    output_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_scores_plot.png"
     try:
-        with open(file_path, "r") as file:
+        with open(QUIZ_RESULTS_PATH, "r") as file:
             scores = json.load(file)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Score file not found. Please take some quizzes first.")
@@ -89,30 +31,27 @@ def save_plot_scores():
     plt.ylabel('Score (%)')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(output_path)
+    plt.savefig(PLOT_IMAGE_PATH)
     plt.close()
 
-@app.get("/plot-scores/")
+
 def get_plot_scores():
-    plot_image_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_scores_plot.png"
     save_plot_scores()
-    if not os.path.exists(plot_image_path):
+    if not os.path.exists(PLOT_IMAGE_PATH):
         raise HTTPException(status_code=404, detail="Plot image not found.")
-    return FileResponse(plot_image_path)
+    return FileResponse(PLOT_IMAGE_PATH)
 
 
-@app.get("/latest-quiz-result/")
 def get_latest_quiz_result():
-    file_path = "D:/PROJECT/Newfolder/its/backend/database/quiz_results.json"
     try:
-        with open(file_path, "r") as file:
+        with open(QUIZ_RESULTS_PATH, "r") as file:
             scores = json.load(file)
     except FileNotFoundError:
         return {"message": "No quiz results found."}
 
     if not scores:
         return {"message": "No quiz results available yet."}
-    
+
     latest_score = scores[-1]
     score_value = latest_score['score']
 
@@ -123,4 +62,4 @@ def get_latest_quiz_result():
     else:
         message = f"You scored {score_value}% on your last quiz. You seem to be good with the concepts of DBMS. Lets practice a bit more to master it😎 "
 
-    return {"message": message}
+    return {"message": message, "score": score_value}

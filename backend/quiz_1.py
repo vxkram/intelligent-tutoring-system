@@ -1,58 +1,56 @@
-
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Dict
-import random
 import json
+import os
+import random
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List
 
-app = FastAPI()
+from fastapi import HTTPException
+from pydantic import BaseModel
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+QUESTION_BANK_PATH = Path(BASE_DIR) / "database" / "question_bank_dbms.json"
+QUIZ_RESULTS_PATH = Path(BASE_DIR) / "database" / "quiz_results.json"
+
 
 class Question(BaseModel):
     question: str
     options: List[str]
     answer: str
 
+
 class QuizSubmission(BaseModel):
     answers: Dict[str, str]
 
-def load_questions() -> List[Dict]:
-    file_path = Path("D:/PROJECT/Newfolder/its/backend/database/question_bank_dbms.json")
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Question bank not found")
-    with file_path.open("r") as file:
-        questions = json.load(file)
-    return questions
 
-@app.get("/quiz/", response_model=List[Question])
+def load_questions() -> List[Dict]:
+    if not QUESTION_BANK_PATH.exists():
+        raise HTTPException(status_code=404, detail="Question bank not found")
+    with QUESTION_BANK_PATH.open("r") as file:
+        return json.load(file)
+
+
 async def get_quiz_questions():
     questions = load_questions()
     return random.sample(questions, min(len(questions), 10))
 
-@app.post("/quiz/")
-async def submit_quiz(submission: QuizSubmission):
-    questions = load_questions()
-    score = calculate_score(submission.answers, questions)
-    save_score(score)
-    return {"message": f"You scored {score}% on this quiz."}
 
 def calculate_score(user_answers: Dict[str, str], questions: List[Dict]) -> float:
-    correct_answers = 0
-    for question in questions:
-        # Match each question with the answer provided by the user.
-        if user_answers.get(question["question"]) == question["answer"]:
-            correct_answers += 1
-    # return correct_answers / len(questions) * 100 if questions else 0
-    return correct_answers / 10 * 100 if questions else 0
+    # `questions` is the full question bank, but a quiz attempt only ever shows
+    # a random sample of it (see get_quiz_questions). Score against just the
+    # questions the user was actually asked — otherwise every score is capped
+    # at (sample size / bank size) * 100 no matter how well they do.
+    answered_questions = [q for q in questions if q["question"] in user_answers]
+    if not answered_questions:
+        return 0
+    correct_answers = sum(1 for q in answered_questions if user_answers.get(q["question"]) == q["answer"])
+    return correct_answers / len(answered_questions) * 100
 
 
 def save_score(user_answers: Dict[str, str], questions: List[Dict], score: float):
-    file_path = Path("D:/PROJECT/Newfolder/its/backend/database/quiz_results.json")
-    
     # Load existing quiz results if the file exists
-    if file_path.exists():
-        with file_path.open("r") as file:
+    if QUIZ_RESULTS_PATH.exists():
+        with QUIZ_RESULTS_PATH.open("r") as file:
             quiz_results = json.load(file)
     else:
         quiz_results = []
@@ -74,13 +72,5 @@ def save_score(user_answers: Dict[str, str], questions: List[Dict], score: float
 
     # Append the new quiz result to the list and save it back to the file
     quiz_results.append(new_quiz_result)
-    with file_path.open("w") as file:
+    with QUIZ_RESULTS_PATH.open("w") as file:
         json.dump(quiz_results, file, indent=4)
-
-
-
-
-
-
-
-

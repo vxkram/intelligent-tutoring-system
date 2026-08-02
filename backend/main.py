@@ -1,19 +1,18 @@
+import os
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from quiz_1 import get_quiz_questions, submit_quiz, QuizSubmission, Question, load_questions, calculate_score , save_score
-from quiz_2 import get_quiz, evaluate_quiz, QuizAnswers, Question
-#Ensure these are defined and imported correctly.
-from results_1 import get_plot_scores, get_latest_quiz_result
-from content_rec import get_latest_quiz_result, recommend_resources, Resource
-from pdf_summarizer import list_pdf_files, extract_text_from_pdf, summarize_text,create_summary_pdf
-from website_sum import clean_text, summarize_text
-from pydantic import BaseModel
-# Ensure these are defined and imported correctly.
 
+from quiz_1 import get_quiz_questions, QuizSubmission, Question, load_questions, calculate_score, save_score
+from quiz_2 import get_quiz, evaluate_quiz, QuizAnswers, Question as Quiz2Question
+from results_1 import get_plot_scores, get_latest_quiz_result
+from content_rec import recommend_resources, Resource
+from pdf_summarizer import list_pdf_files, extract_text_from_pdf, summarize_text, create_summary_pdf
+
+current_directory = os.path.dirname(os.path.realpath(__file__))
 app = FastAPI()
 
 app.add_middleware(
@@ -24,7 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="D:/PROJECT/Newfolder/its/backend/static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(current_directory, "static")), name="static")
 
 @app.get("/quiz/", response_model=List[Question])
 async def quiz_endpoint():
@@ -38,7 +37,7 @@ async def submit_quiz(submission: QuizSubmission):
     score = calculate_score(submission.answers, questions)
     save_score(submission.answers, questions, score)
     return {"message": f"You scored {score}% on this quiz."}
-    
+
 
 @app.get("/plot-scores/")
 async def plot_scores_endpoint():
@@ -53,13 +52,8 @@ async def recommend_resources_wrapper():
     # Simply call the recommend_resources function from content_rec.py
     return await recommend_resources()
 
-@app.get("/generate-summary/")
-async def summary_route():
-    # This just forwards the request to your existing function
-    return await generate_summary()
-
 # Quiz 2 Endpoints
-@app.get("/quiz_2/", response_model=list[Question])
+@app.get("/quiz_2/", response_model=list[Quiz2Question])
 async def quiz_2_endpoint():
     return get_quiz()
 
@@ -68,23 +62,10 @@ async def evaluate_quiz_2(quiz_answers: QuizAnswers):
     return evaluate_quiz(quiz_answers)
 
 
-class URL(BaseModel):
-    url: str
-
-@app.post("/summarize/")
-def generate_summary(url_data: URL):
-    text = clean_text(url_data.url)
-    if not text:
-        return {"message": "No text found on the page"}
-    summary = summarize_text(text)
-    return {"summary": summary}
-
-
 @app.get("/pdfs/")
 def get_pdfs():
     """Endpoint to list available PDFs."""
     return list_pdf_files()
-
 
 
 @app.get("/summarize-pdf/{pdf_id}")
@@ -95,9 +76,9 @@ def get_pdf_summary(pdf_id: int):
         raise HTTPException(status_code=404, detail="PDF not found")
     text = extract_text_from_pdf(pdf['file_path'])
     summary = summarize_text(text)
-    output_path = f"temp_summary_{pdf_id}.pdf"
+    output_path = os.path.join(current_directory, f"temp_summary_{pdf_id}.pdf")
     create_summary_pdf(summary, output_path)
-    return FileResponse(output_path, media_type='application/pdf', filename=output_path)
+    return FileResponse(output_path, media_type='application/pdf', filename=os.path.basename(output_path))
 
 @app.get("/download-pdf/{pdf_id}")
 def download_pdf(pdf_id: int):
@@ -109,11 +90,6 @@ def download_pdf(pdf_id: int):
     return FileResponse(pdf['file_path'], media_type='application/pdf', filename=pdf['title'])
 
 
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
