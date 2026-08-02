@@ -1,9 +1,11 @@
 import {
 	HomeOutlined,
 	MenuBookOutlined,
+	AssignmentOutlined,
+	AssessmentOutlined,
+	RecommendOutlined,
+	PictureAsPdfOutlined,
 	MenuOutlined,
-	NoteAltOutlined,
-	PublishedWithChangesOutlined,
 } from '@mui/icons-material';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import PropTypes from 'prop-types';
@@ -11,11 +13,9 @@ import React, { useState } from 'react';
 import { Menu, MenuItem, ProSidebar } from 'react-pro-sidebar';
 import { Link } from 'react-router-dom';
 import mc from '../../assets/mc1.jpg';
-import ShowNav from '../../components/ShowNav';
 import { tokens } from '../../theme';
 import './sidebarStyle.css';
 
-const sidebarClassName = ShowNav ? '' : 'hiddenSidebar';
 const Item = ({ title, to, icon, selected, setSelected }) => {
 	const theme = useTheme();
 	const colors = tokens(theme.palette.mode);
@@ -49,7 +49,7 @@ const sidebar = () => {
 	const [isCollapsed, setIsCollapse] = useState(false);
 	const [selected, setSelected] = useState('Dashboard');
 	return (
-		<div className="sidebarClassName">
+		<div className="app-sidebar">
 			<Box
 				sx={{
 					'& .pro-sidebar-inner': {
@@ -137,8 +137,8 @@ const sidebar = () => {
 						</Box>
 						<Box paddingLeft={isCollapsed ? undefined : '10%'}>
 							<Item
-								title="Courses"
-								to="/courses"
+								title="Learning Methods"
+								to="/ELM"
 								icon={<MenuBookOutlined />}
 								selected={selected}
 								setSelected={setSelected}
@@ -146,18 +146,36 @@ const sidebar = () => {
 						</Box>
 						<Box paddingLeft={isCollapsed ? undefined : '10%'}>
 							<Item
-								title="Progress"
-								to="/progress"
-								icon={<PublishedWithChangesOutlined />}
+								title="Take Quiz"
+								to="/quiz"
+								icon={<AssignmentOutlined />}
 								selected={selected}
 								setSelected={setSelected}
 							/>
 						</Box>
 						<Box paddingLeft={isCollapsed ? undefined : '10%'}>
 							<Item
-								title="Notes"
-								to="/notes"
-								icon={<NoteAltOutlined />}
+								title="My Results"
+								to="/result"
+								icon={<AssessmentOutlined />}
+								selected={selected}
+								setSelected={setSelected}
+							/>
+						</Box>
+						<Box paddingLeft={isCollapsed ? undefined : '10%'}>
+							<Item
+								title="Recommendations"
+								to="/content_rec"
+								icon={<RecommendOutlined />}
+								selected={selected}
+								setSelected={setSelected}
+							/>
+						</Box>
+						<Box paddingLeft={isCollapsed ? undefined : '10%'}>
+							<Item
+								title="PDF Summaries"
+								to="/pdf_sum"
+								icon={<PictureAsPdfOutlined />}
 								selected={selected}
 								setSelected={setSelected}
 							/>
