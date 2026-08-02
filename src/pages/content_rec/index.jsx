@@ -32,7 +32,7 @@ const ContentDisplay = () => {
 		fetchResources();
 	}, []);
 
-	const imageBaseUrl = 'http://localhost:8000/static/';
+	const imageBaseUrl = 'http://localhost:8000/static';
 
 	const imageNameFormatter = (title) => {
 		return title.replace(/\s+/g, '_').toLowerCase() + '.jpg';
@@ -46,7 +46,7 @@ const ContentDisplay = () => {
 			style={{ padding: 40 }}
 		>
 			{resources.map((resource, index) => (
-				<Stack direction={'row'} gap={2} item key={index}>
+				<Stack direction={'row'} gap={2} key={index}>
 					<Card sx={{ maxWidth: 345, margin: 'auto' }}>
 						<CardActionArea onClick={() => window.open(resource.url, '_blank')}>
 							<CardMedia

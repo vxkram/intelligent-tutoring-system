@@ -17,7 +17,7 @@ const Results = () => {
 	useEffect(() => {
 		const fetchPlotImage = async () => {
 			try {
-				const response = await axios.get('http://localhost:8000/plot-scores', {
+				const response = await axios.get('http://localhost:8000/plot-scores/', {
 					responseType: 'blob',
 				});
 				const imageBlob = response.data;
@@ -31,7 +31,7 @@ const Results = () => {
 		const fetchLatestQuizResult = async () => {
 			try {
 				const response = await axios.get(
-					'http://localhost:8000/latest-quiz-result'
+					'http://localhost:8000/latest-quiz-result/'
 				);
 				setLatestQuizResult(response.data.message);
 			} catch (error) {
