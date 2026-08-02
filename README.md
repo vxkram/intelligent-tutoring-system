@@ -1,70 +1,74 @@
-# Getting Started with Create React App
+# Intelligent Tutoring System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A DBMS study app: take a quiz, get a plain-language readout of how you did, and get resource recommendations that actually change based on your score — plus text/video learning hubs and PDF summarization.
 
-## Available Scripts
+| Dashboard | Quiz | Results |
+|---|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Quiz](docs/screenshots/quiz.png) | ![Results](docs/screenshots/result.png) |
 
-In the project directory, you can run:
+**Stack:** FastAPI backend · React + Material-UI frontend · Node/Express + MongoDB (auth)
 
-### `npm start`
+## What actually works
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Quiz → score → tiered recommendations.** `/quiz` samples 10 questions from a 25-question DBMS bank, scores your submission, and `/content_rec` recommends Beginner/Intermediate/Advanced resources based on that score — this loop is real and tested (see `backend/test_backend.py`).
+- **Results page** with a real matplotlib chart of your score history over time.
+- **PDF summarization** (`/pdf_sum`): extracts text from a PDF (PyMuPDF), summarizes it (NLTK frequency scoring), and returns a downloadable one-page summary PDF.
+- **Learning-method hub** (`/ELM`) linking to the PDF summarizer and the recommendation page.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## What's honest-but-limited
 
-### `npm test`
+- **Login is a placeholder.** It doesn't check credentials against anything — submitting takes you straight to the dashboard. **Register** does write to MongoDB via the Node auth server, but nothing reads it back at login time. There's no session/token anywhere in the app.
+- **`/quiz_2`** is a second, minimal quiz variant (currently one question) wired end-to-end but not linked from navigation — reachable by URL only.
+- Passwords are stored in plaintext in MongoDB. Fine for a local demo, not for anything real.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Project structure
 
-### `npm run build`
+```
+backend/    FastAPI app (main.py) + quiz/scoring/recommendation/PDF-summary modules
+server/     Node/Express + MongoDB registration endpoint (port 3001)
+src/        React frontend (port 3000)
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Setup
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+You need three processes running: the FastAPI backend, the frontend, and (only if you want Register to work) the Node auth server + a local MongoDB.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Backend
 
-### `npm run eject`
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python main.py   # serves on :8000
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Frontend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm install
+npm start   # serves on :3000
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Auth server (optional — only needed for Register)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+cd server
+npm install
+# requires a local MongoDB running on the default port (mongodb://localhost:27017)
+npm start   # serves on :3001
+```
 
-## Learn More
+## Running tests
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# backend — 14 tests, no model/network dependencies
+cd backend && pip install -r requirements.txt && pytest
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# frontend — 2 tests
+npm test -- --watchAll=false
+```
 
-### Code Splitting
+## Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+None of this was actually runnable before this pass: the frontend couldn't even `npm install` (a peer-dependency conflict) or build (hardcoded Windows paths in two components rendered on the first page after login), and the backend failed to boot for the same reason (`/static` mounted from a hardcoded path). See the git history for the specific fixes, including a scoring bug that had permanently capped every quiz at 40% and silently broken the recommendation feature this app is actually about.
