@@ -1,25 +1,27 @@
-import { Dashboard, Flare } from '@mui/icons-material';
 import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { tokens } from '../../theme';
 
-const Register = (props) => {
+const Register = () => {
 	const navigate = useNavigate();
 	const theme = useTheme();
 	const colors = tokens(theme.palette.mode);
-	const [name, setName] = useState();
-	const [email, setEmail] = useState();
-	const [password, setPassword] = useState();
+	const [name, setName] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [error, setError] = useState('');
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		axios.post('http://localhost:3001/register', {
-			name: name,
-			email: email,
-			password: password,
-		});
+		setError('');
+		try {
+			await axios.post('http://localhost:3001/register', { name, email, password });
+			navigate('/');
+		} catch (err) {
+			setError('Registration failed. Is the auth server running?');
+		}
 	};
 
 	return (
@@ -43,10 +45,11 @@ const Register = (props) => {
 					</Typography>
 					<TextField
 						sx={{ minWidth: 300 }}
-						type={'name'}
+						type={'text'}
 						margin="dense"
 						variant="outlined"
 						placeholder="Name"
+						value={name}
 						onChange={(e) => setName(e.target.value)}
 					/>
 					<TextField
@@ -55,6 +58,7 @@ const Register = (props) => {
 						margin="dense"
 						variant="outlined"
 						placeholder="Email"
+						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
 					<TextField
@@ -63,22 +67,29 @@ const Register = (props) => {
 						margin="dense"
 						variant="outlined"
 						placeholder="Password"
+						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 					/>
+					{error && (
+						<Typography color="error" variant="body2" sx={{ mt: 1 }}>
+							{error}
+						</Typography>
+					)}
 					<Box display="flex" flexDirection={'column'}>
 						<Button
+							type="submit"
 							variant="contained"
 							color="success"
 							sx={{ marginTop: 2, borderRadius: 1, margin: 2 }}
-							onClick={handleSubmit}
 						>
 							Sign Up
 						</Button>
 						<Button
+							type="button"
 							variant="outlined"
 							color="success"
 							sx={{ marginTop: 2, borderRadius: 1, margin: 2 }}
-							onClick={() => navigate('/login')}
+							onClick={() => navigate('/')}
 						>
 							Login
 						</Button>

@@ -1,10 +1,9 @@
-/* eslint-disable no-undef */
 const mongoose = require('mongoose');
 
 const authSchema = new mongoose.Schema({
-	Name: String,
-	Email: String,
-	Password: String,
+	name: { type: String, required: true },
+	email: { type: String, required: true, unique: true },
+	password: { type: String, required: true },
 });
 
 const authModel = mongoose.model('admin', authSchema);
