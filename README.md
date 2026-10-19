@@ -1,5 +1,7 @@
 # Intelligent Tutoring System
 
+[![tests](https://github.com/vxkram/intelligent-tutoring-system/actions/workflows/tests.yml/badge.svg)](https://github.com/vxkram/intelligent-tutoring-system/actions/workflows/tests.yml)
+
 A DBMS study app: take a quiz, get a plain-language readout of how you did, and get resource recommendations that actually change based on your score — plus text/video learning hubs and PDF summarization.
 
 | Dashboard | Quiz | Results |
